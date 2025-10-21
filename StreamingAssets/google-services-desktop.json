@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "558766393884",
+    "project_id": "match-and-sort-3d-69137",
+    "storage_bucket": "match-and-sort-3d-69137.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:558766393884:android:37d44cfcb1fe0de7c02dd9",
+        "android_client_info": {
+          "package_name": "com.matchsort3d.android"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDoUKJEh9LFx2RnC3SlkRNnlR9J2xQuJ1g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta property="og:title" content="Match&Sort 3D! | Line MiniApp" />
+    <!--
+              <meta property="og:description" content="Sweet and thrilling adventure" />
+        <meta property="og:image" content="https://vos.line-scdn.net/super-casual/line.png" />
+        <meta property="og:url" content="https://jumpujumpu.nxtgame.net/"/>
+
+    -->
+    <meta property="og:type" content="website" />
+
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>CAT POP | LINE Mini App</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+    <link rel="stylesheet" href="TemplateData/copy-popup.css">
+    <!---
+      <script type="text/javascript" src="https://line-objects-internal.com/assets/liff/edge/versions/2.26.1/sdk.js"></script>
+    -->
+    <script type="text/javascript" src="https://static.line-scdn.net/liff/edge/versions/2.23.0/sdk.js"></script>
+    <script type="text/javascript" src="https://yads.c.yimg.jp/js/yads-async.js"></script>
+    <script src="scripts/liff-sdk-unity.js"></script>
+    <script src="scripts/NVClipboardWebGL.js"></script>
+    <script src="scripts/yads-unity.js"></script>
+    
+
+  <style>
+      body {
+        background-image: url("TemplateData/img_bg.png");
+        background-size: cover;
+        background-position: bottom;
+        background-repeat: no-repeat;
+        margin: 0;
+        height: 100vh;
+      }
+
+      #logoCommon {
+        background-image: url("TemplateData/Logo_common.png");
+        background-size: auto;
+        /*background-position: center;*/
+        background-repeat: no-repeat;
+
+        width: 160px;
+        height: 50px;
+
+        position: fixed;
+        bottom: 50px;
+        left: 50%;
+        transform: translateX(-50%); /* 정렬 보정 */
+        z-index: 9998;
+      }
+
+      #yadsBanner {
+        width: 100%;
+        height: 50px; /*7.49%;*/
+        /*background: transparent;*/
+        background: black; /*rgba(0, 0, 0, 1.0);*/
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 9999;
+      }
+    </style>
+
+    <!--
+
+        <canvas id="unity-canvas" width=376 height=668 tabindex="-1" style="width: 376px; height: 668px; background: transparent;"></canvas>
+    -->
+    
+</head>
+  <body>
+   
+    <!--<div id="testbg">
+ 
+    </div>-->
+
+    <div id="unity-container" class="unity-desktop">
+      <canvas id="unity-canvas" width=376 height=668 tabindex="-1"></canvas>
+      <div id="unity-loading-bar">
+          <div id="unity-logo"></div>
+        <div id="unity-progress-bar-full">
+          <div
+            id="unity-progress-bar-empty"
+            style="position: relative; left: 1px"
+          ></div>
+          <div style="position: fixed; top: 101%; width: 100%; text-align: center; font-size: 16px; color: #BF735A;">
+                  Loading...
+              </div>
+          </div>
+        </div>
+      </div>
+      <div id="unity-warning"> </div>
+      <!--<div id="unity-footer">
+        <div id="unity-logo-title-footer"></div>
+        <div id="unity-fullscreen-button"></div>
+        <div id="unity-build-title">MATCH SORT 3D</div>
+      </div>-->
+      
+    </div>
+    <div id="yadsBanner"></div>
+    <div id="yads"></div>
+    <div id="logoCommon"></div>
+    <script>
+        document.getElementById("yadsBanner").addEventListener("click", function () {
+            if (typeof unityInstance !== "undefined") {
+                unityInstance.SendMessage("YadsAdManager", "OnBannerClicked");
+            }
+        });
+    </script>
+    <script>
+      var canvas = document.querySelector("#unity-canvas");
+
+      // Shows a temporary message banner/ribbon for a few seconds, or
+      // a permanent error message on top of the canvas if type=='error'.
+      // If type=='warning', a yellow highlight color is used.
+      // Modify or remove this function to customize the visually presented
+      // way that non-critical warnings and error messages are presented to the
+      // user.
+      function unityShowBanner(msg, type) {
+        var warningBanner = document.querySelector("#unity-warning");
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        }
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type == 'error') div.style = 'background: red; padding: 10px;';
+        else {
+          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function() {
+            warningBanner.removeChild(div);
+            updateBannerVisibility();
+          }, 5000);
+        }
+        updateBannerVisibility();
+      }
+
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/MatchNSort3D.loader.js";
+      var config = {
+        arguments: [],
+        dataUrl: buildUrl + "/MatchNSort3D.data.br",
+        frameworkUrl: buildUrl + "/MatchNSort3D.framework.js.br",
+        codeUrl: buildUrl + "/MatchNSort3D.wasm.br",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "LineNext corp",
+        productName: "MATCH SORT 3D",
+        productVersion: "0.1.0.0.2",
+        showBanner: unityShowBanner,
+      };
+
+      // By default, Unity keeps WebGL canvas render target size matched with
+      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
+      // Set this to false if you want to decouple this synchronization from
+      // happening inside the engine, and you would instead like to size up
+      // the canvas DOM size and WebGL render target sizes yourself.
+      // config.matchWebGLToCanvasSize = false;
+
+      // If you would like all file writes inside Unity Application.persistentDataPath
+      // directory to automatically persist so that the contents are remembered when
+      // the user revisits the site the next time, uncomment the following line:
+      // config.autoSyncPersistentDataPath = true;
+      // This autosyncing is currently not the default behavior to avoid regressing
+      // existing user projects that might rely on the earlier manual
+      // JS_FileSystem_Sync() behavior, but in future Unity version, this will be
+      // expected to change.
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        // Mobile device style: fill the whole browser client area with the game canvas:
+
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+        document.querySelector("#unity-container").className = "unity-mobile";
+        canvas.className = "unity-mobile";
+
+        // To lower canvas resolution on mobile devices to gain some
+        // performance, uncomment the following line:
+        // config.devicePixelRatio = 1;
+
+
+      } else {
+        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
+        canvas.style.width = "376px";
+        canvas.style.height = "668px";
+      }
+
+      document.querySelector("#unity-loading-bar").style.display = "block";
+
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
+              }).then((unityInstance) => {
+                window.unityInstance = unityInstance;
+                document.querySelector("#unity-loading-bar").style.display = "none";
+
+                //로고 제거.
+                const logo = document.querySelector("#logoCommon");
+                if (logo) {
+                    logo.remove();   
+                    // 또는 logo.style.display = "none"; // 보이지 않게만
+                }
+                //document.querySelector("#unity-fullscreen-button").onclick = () => {
+                //  unityInstance.SetFullscreen(1);
+                //};
+
+              }).catch((message) => {
+                alert(message);
+              });
+            };
+
+      document.body.appendChild(script);
+
+	   document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'hidden') {
+            // 페이지가 백그라운드로 전환됨
+            //console.log('페이지가 백그라운드로 전환되었습니다.');
+            window.unityInstance.SendMessage('NVDataControlManager', 'OnApplicationPauseFromWeb', 'true');
+        } else {
+            // 페이지가 포그라운드로 돌아옴
+           // console.log('페이지가 포그라운드로 돌아왔습니다.');
+            window.unityInstance.SendMessage('NVDataControlManager', 'OnApplicationPauseFromWeb', 'false');
+        }
+		});
+		
+		//window.addEventListener('focus', function() {
+		//	console.log('페이지가 포커스를 얻었습니다.');
+        //    window.unityInstance.SendMessage('NVDataControlManager', 'OnFocusChangeFromWeb', 'true');
+		//});
+
+		//window.addEventListener('blur', function() {
+		//	console.log('페이지가 포커스를 잃었습니다.');
+		//	 window.unityInstance.SendMessage('NVDataControlManager', 'OnFocusChangeFromWeb', 'false');
+		//});
+
+    </script>
+	
+	
+
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+      import { getAnalytics, logEvent as firebaseLogEvent, setAnalyticsCollectionEnabled } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    
+      const firebaseConfig = {
+        apiKey: "AIzaSyDz2byVVfCnGzas3Le7Yyr5C4FRyiz0mA8",
+        authDomain: "superpower-studio.firebaseapp.com",
+        projectId: "superpower-studio",
+        storageBucket: "superpower-studio.firebasestorage.app",
+        messagingSenderId: "544690459840",
+        appId: "1:544690459840:web:f4cc23e932499f129f0925",
+        measurementId: "G-91HWKHD4JW"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      //console.log("Firebase App initialized:", app);
+
+      const analytics = getAnalytics(app);
+      //console.log("Firebase Analytics instance:", analytics);
+
+      try {
+          firebaseLogEvent(analytics, 'initialized_test_event', { param1: 'value1' });
+          //console.log("Firebase Test event logged (check Firebase Console).");
+      } catch (error) {
+          //console.error("Firebase error logging event:", error);
+      }
+
+      // Analytics 데이터 수집 활성화 (디버깅시 데이터 수집이 오염될 수 있으므로 일시적으로 비활성화 해야됨)
+      setAnalyticsCollectionEnabled(analytics, true); // 실제 데이터 수집시 주석해제
+      //setAnalyticsCollectionEnabled(analytics, false) // 디버깅시 주석 해제
+
+      // logEvent 함수를 전역 스코프에 노출
+      window.unityFirebaseLogEvent = (eventName, params) => {
+          firebaseLogEvent(analytics, eventName, params);
+      };
+    </script>
+    <script>
+      function adjustDivWidth() {
+        const unityCanvas = document.getElementById('unity-canvas');
+        const customDiv = document.getElementById('open-ads-banner');
+
+        if (unityCanvas && customDiv) {
+          
+          let bannerWidth = calculateAspectRatioFit(unityCanvas.clientWidth , unityCanvas.clientHeight);
+          customDiv.style.width = bannerWidth + 'px';
+          //console.log("OpenAds width:"+ bannerWidth + 'px');
+        }
+      }
+
+      
+    function calculateAspectRatioFit(containerWidth, containerHeight) {
+      const contentWidth = 376;
+      const contentHeight = 668;
+      const contentRatio = contentWidth / contentHeight;
+      const containerRatio = containerWidth / containerHeight;
+      
+      let newWidth, newHeight;
+
+      if (containerRatio > contentRatio) {
+        newHeight = containerHeight;
+        newWidth = containerHeight * contentRatio;
+      } else {
+        newWidth = containerWidth;
+        newHeight = containerWidth / contentRatio;
+      }
+
+      return Math.round(newWidth);
+        
+    }
+
+      window.addEventListener('DOMContentLoaded', adjustDivWidth);
+      window.addEventListener('resize', adjustDivWidth);
+    </script>
+  </body>
+</html>
