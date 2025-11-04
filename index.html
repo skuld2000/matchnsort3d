@@ -68,7 +68,7 @@
 
       #yadsBanner > div {
         width: 100%;
-        max-width: calc(100vh * 16 / 9);
+        max-width: calc(100vh * 9 / 16);
         height: 100%;
       }
     </style>
@@ -176,13 +176,13 @@
       // JS_FileSystem_Sync() behavior, but in future Unity version, this will be
       // expected to change.
 
-      // 16:9 비율로 canvas 크기 조정 함수
-      function adjustCanvasTo16_9() {
+      // 9:16 비율로 canvas 크기 조정 함수
+      function adjustCanvasTo9_16() {
         const container = document.querySelector("#unity-container");
         const canvasElement = document.querySelector("#unity-canvas");
         if (!container || !canvasElement) return;
 
-        const targetAspectRatio = 16 / 9;
+        const targetAspectRatio = 9 / 16; // 세로가 더 긴 비율 (약 0.5625)
         const windowWidth = window.innerWidth;
         const windowHeight = window.innerHeight;
         const windowAspectRatio = windowWidth / windowHeight;
@@ -190,11 +190,11 @@
         let canvasWidth, canvasHeight;
 
         if (windowAspectRatio > targetAspectRatio) {
-          // 화면이 더 넓음: 높이 기준으로 맞춤
+          // 화면이 좌우로 더 넓음 (예: 아이패드): 높이 기준으로 맞춤 (좌우에 검은 배경)
           canvasHeight = windowHeight;
           canvasWidth = canvasHeight * targetAspectRatio;
         } else {
-          // 화면이 더 좁음: 너비 기준으로 맞춤
+          // 화면이 위아래로 더 긴 경우 (예: 갤럭시S25): 너비 기준으로 맞춤 (위아래에 검은 배경)
           canvasWidth = windowWidth;
           canvasHeight = canvasWidth / targetAspectRatio;
         }
@@ -204,7 +204,7 @@
       }
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: maintain 16:9 aspect ratio
+        // Mobile device style: maintain 9:16 aspect ratio
 
         var meta = document.createElement('meta');
         meta.name = 'viewport';
@@ -214,12 +214,12 @@
         canvas.className = "unity-mobile";
 
         // 초기 크기 조정
-        adjustCanvasTo16_9();
+        adjustCanvasTo9_16();
 
         // 화면 크기 변경 시 크기 조정
-        window.addEventListener('resize', adjustCanvasTo16_9);
+        window.addEventListener('resize', adjustCanvasTo9_16);
         window.addEventListener('orientationchange', function() {
-          setTimeout(adjustCanvasTo16_9, 100);
+          setTimeout(adjustCanvasTo9_16, 100);
         });
 
         // To lower canvas resolution on mobile devices to gain some
@@ -246,7 +246,7 @@
 
                 // Unity 인스턴스 생성 후 canvas 크기 재조정
                 if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                  adjustCanvasTo16_9();
+                  adjustCanvasTo9_16();
                 }
 
                 //로고 제거.
