@@ -28,7 +28,7 @@
 
   <style>
       body {
-        background-image: url("TemplateData/img_bg.png");
+        background-color: #000000;
         background-size: cover;
         background-position: bottom;
         background-repeat: no-repeat;
@@ -61,6 +61,15 @@
         bottom: 0;
         left: 0;
         z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #yadsBanner > div {
+        width: 100%;
+        max-width: calc(100vh * 16 / 9);
+        height: 100%;
       }
     </style>
 
@@ -167,8 +176,35 @@
       // JS_FileSystem_Sync() behavior, but in future Unity version, this will be
       // expected to change.
 
+      // 16:9 비율로 canvas 크기 조정 함수
+      function adjustCanvasTo16_9() {
+        const container = document.querySelector("#unity-container");
+        const canvasElement = document.querySelector("#unity-canvas");
+        if (!container || !canvasElement) return;
+
+        const targetAspectRatio = 16 / 9;
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        const windowAspectRatio = windowWidth / windowHeight;
+
+        let canvasWidth, canvasHeight;
+
+        if (windowAspectRatio > targetAspectRatio) {
+          // 화면이 더 넓음: 높이 기준으로 맞춤
+          canvasHeight = windowHeight;
+          canvasWidth = canvasHeight * targetAspectRatio;
+        } else {
+          // 화면이 더 좁음: 너비 기준으로 맞춤
+          canvasWidth = windowWidth;
+          canvasHeight = canvasWidth / targetAspectRatio;
+        }
+
+        canvasElement.style.width = canvasWidth + 'px';
+        canvasElement.style.height = canvasHeight + 'px';
+      }
+
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
+        // Mobile device style: maintain 16:9 aspect ratio
 
         var meta = document.createElement('meta');
         meta.name = 'viewport';
@@ -176,6 +212,15 @@
         document.getElementsByTagName('head')[0].appendChild(meta);
         document.querySelector("#unity-container").className = "unity-mobile";
         canvas.className = "unity-mobile";
+
+        // 초기 크기 조정
+        adjustCanvasTo16_9();
+
+        // 화면 크기 변경 시 크기 조정
+        window.addEventListener('resize', adjustCanvasTo16_9);
+        window.addEventListener('orientationchange', function() {
+          setTimeout(adjustCanvasTo16_9, 100);
+        });
 
         // To lower canvas resolution on mobile devices to gain some
         // performance, uncomment the following line:
@@ -198,6 +243,11 @@
               }).then((unityInstance) => {
                 window.unityInstance = unityInstance;
                 document.querySelector("#unity-loading-bar").style.display = "none";
+
+                // Unity 인스턴스 생성 후 canvas 크기 재조정
+                if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                  adjustCanvasTo16_9();
+                }
 
                 //로고 제거.
                 const logo = document.querySelector("#logoCommon");
